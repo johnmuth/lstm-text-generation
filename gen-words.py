@@ -5,6 +5,7 @@ import sys
 import pprint
 import numpy
 import re
+import random
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
@@ -14,11 +15,14 @@ from keras.utils import np_utils
 # load ascii text and covert to lowercase
 filename = "smiths-clean.txt"
 raw_text = open(filename).read()
+line_lengths = []
+for line in raw_text.splitlines(True):
+	line_lengths.append(len(re.sub("[^\w']", " ",  line).split()))
+#pprint.pprint(line_lengths)
+#sys.exit(0)
 raw_text = raw_text.lower()
 # create mapping of unique words to integers, and reverse
 raw_text_words = re.sub("[^\w']", " ",  raw_text).split()
-#pprint.pprint(raw_text_words)
-#sys.exit(0)
 words = sorted(list(set(raw_text_words)))
 word_to_int = dict((w, i) for i, w in enumerate(words))
 int_to_word = dict((i, w) for i, w in enumerate(words))
@@ -61,7 +65,7 @@ print "\"", ' '.join([int_to_word[value] for value in pattern]), "\""
 # generate text
 current_line_len=0
 for i in range(100):
-	zaz = numpy.random.randint(1,8)
+	zaz = random.choice(line_lengths)
 	if current_line_len >= zaz:
 		current_line_len=0
 		sys.stdout.write("\n")
