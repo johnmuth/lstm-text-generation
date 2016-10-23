@@ -16,9 +16,10 @@ filename = "smiths-clean.txt"
 raw_text = open(filename).read()
 raw_text = raw_text.lower()
 # create mapping of unique words to integers, and reverse
-raw_text_words = re.sub("[^\w]", " ",  raw_text).split()
+raw_text_words = re.sub("[^\w']", " ",  raw_text).split()
+#pprint.pprint(raw_text_words)
+#sys.exit(0)
 words = sorted(list(set(raw_text_words)))
-#pprint.pprint(words)
 word_to_int = dict((w, i) for i, w in enumerate(words))
 int_to_word = dict((i, w) for i, w in enumerate(words))
 # summarize the loaded data
@@ -49,23 +50,30 @@ model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
 model.add(Dropout(0.2))
 model.add(Dense(y.shape[1], activation='softmax'))
 # load the network weights
-filename = "weights-improvement-29-1.8415.hdf5"
+filename = "weights-improvement-29-4.6497.hdf5"
 model.load_weights(filename)
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 # pick a random seed
 start = numpy.random.randint(0, len(dataX)-1)
 pattern = dataX[start]
 print "Seed:"
-print "\"", ''.join([int_to_word[value] for value in pattern]), "\""
+print "\"", ' '.join([int_to_word[value] for value in pattern]), "\""
 # generate text
-for i in range(1000):
+current_line_len=0
+for i in range(100):
+	zaz = numpy.random.randint(1,8)
+	if current_line_len >= zaz:
+		current_line_len=0
+		sys.stdout.write("\n")
+	else:
+		current_line_len += 1
 	x = numpy.reshape(pattern, (1, len(pattern), 1))
 	x = x / float(n_vocab)
 	prediction = model.predict(x, verbose=0)
 	index = numpy.argmax(prediction)
 	result = int_to_word[index]
 	seq_in = [int_to_word[value] for value in pattern]
-	sys.stdout.write(result)
+	sys.stdout.write(result + " ")
 	pattern.append(index)
 	pattern = pattern[1:len(pattern)]
-print "\nDone."
+sys.stdout.write("\n")
